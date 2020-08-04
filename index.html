@@ -1,0 +1,142 @@
+<html>
+<head>
+<style>
+button{
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+.inline{
+	display:block;
+	float:left;
+}
+.hidden{
+	display: none;
+}
+.visible{
+	display: block;
+}
+.border{
+   border-style: solid;
+   border-width: 1px;
+}
+</style>
+</head>
+<body onload="init();">
+	<div id="main-menu">
+		<button type="button" id="single" class="visible" onclick="chooseMode(this)">New Game</button>
+		<button type="button" id="load" class="hidden" onclick="chooseMode(this)">Load Saved Game</button>
+	</div>
+	<div id="game" class="hidden">
+		<progress id="offense" value="50" max="100"></progress><label>Offense</label>
+		<progress id="defense" value="50" max="100"></progress><label>Defense</label>
+		<progress id="goalie" value="50" max="100"></progress><label>Goalie</label>
+		<h1><span id="question"></span></h1>
+		<button class="inline" type="button" id="choice1" onclick="makeDecision(this)">Choice 1</button>
+		<button class="inline" type="button" id="choice2" onclick="makeDecision(this)">Choice 2</button>
+		<button type="button" id="reset" class="hidden" onclick="refresh()">Play Again</button>
+	</div>
+</body>
+<script>
+var DECISION_MAP = {
+0: {question:'Question 1', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+1: {question:'Question 2', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+2: {question:'Question 3', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+3: {question:'Question 4', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+4: {question:'Question 5', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+5: {question:'Question 6', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+6: {question:'Question 7', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+7: {question:'Question 8', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+8: {question:'Question 9', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+9: {question:'Question 10', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}},
+10: {question:'Question 11', choice1: {values: [10,-10], types: ['offense', 'defense']}, choice2: {values: [10,-10], types: ['defense', 'offense']}}
+}
+function refresh(){
+	document.getElementById("game").classList.remove("hidden");
+	document.getElementById("game").classList.add("visible");
+	document.getElementById("main-menu").classList.remove("visible");
+	document.getElementById("main-menu").classList.add("hidden");
+	document.getElementById("offense").value = 50;
+	document.getElementById("defense").value = 50;
+	document.getElementById("goalie").value = 50;
+	document.getElementById("reset").setAttribute("class", "hidden");
+	document.getElementById("choice1").classList.remove("class", "hidden");
+	document.getElementById("choice2").classList.remove("class", "hidden");
+	document.getElementById("choice1").classList.add("class", "visible");
+	document.getElementById("choice2").classList.add("class", "visible");
+	getQuestion();
+}
+function getQuestion(){
+	var num = getRandomInt(0, 11);
+	document.getElementById("question").innerHTML = DECISION_MAP[num].question;
+	document.getElementById("question").setAttribute("num", num);
+}
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
+function makeDecision(element){
+	console.log('selected option', element.getAttribute('id'));
+	var types = DECISION_MAP[document.getElementById("question").getAttribute("num")][element.getAttribute('id')].types;
+	var values = DECISION_MAP[document.getElementById("question").getAttribute("num")][element.getAttribute('id')].values;
+	for(var i = 0; i < values.length; i++){
+		document.getElementById(types[i]).value = document.getElementById(types[i]).value + values[i];
+		if(document.getElementById(types[i]).value <= 0){
+			document.getElementById("question").innerHTML = "You lose too low";
+			loseGame();
+			return;
+		}else if(document.getElementById(types[i]).value >= 100){
+			document.getElementById("question").innerHTML = "You lose too high";
+			loseGame();
+			return;
+		}
+	}	
+	getQuestion();
+}
+function loseGame(){
+	document.getElementById("choice1").classList.remove("class", "visible");
+	document.getElementById("choice2").classList.remove("class", "visible");
+	document.getElementById("reset").classList.remove("class", "hidden");
+	document.getElementById("choice1").classList.add("class", "hidden")
+	document.getElementById("choice2").classList.add("class", "hidden");
+	document.getElementById("reset").classList.add("class", "visible");
+}
+function chooseMode(element){
+	mode = element.getAttribute('id');
+	if(mode === 'load'){
+		//load stuff from storage
+		/*
+		document.getElementById("singlegame").innerHTML = localStorage.getItem('singlegame');
+		playerOne = JSON.parse(localStorage.getItem("playerOne"));
+		gameMap = JSON.parse(localStorage.getItem("gameMap"));
+		expandedGameMap = JSON.parse(localStorage.getItem("expandedGameMap"));
+		expandedDoc = JSON.parse(localStorage.getItem("expandedDoc"));
+		x = parseInt(localStorage.getItem('xcoord'));
+		y = parseInt(localStorage.getItem('ycoord'));
+		expandedx = parseInt(localStorage.getItem('expandedxcoord'));
+		expandedy = parseInt(localStorage.getItem('expandedycoord'));
+		objCount = parseInt(localStorage.getItem('objCount'));
+		document.getElementById("singlegame").hidden = false;
+		document.getElementById("singlegame").innerHTML = expandedDoc[expandedx][expandedy];
+		*/
+	}
+	refresh();
+}
+function init(){
+	console.log('started');
+	setTimeout("gameLoop()", 1000);
+}
+
+function gameLoop(){
+	console.log('every second');
+}
+</script>
+</html>
